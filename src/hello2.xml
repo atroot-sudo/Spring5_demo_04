@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+                           http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+                           http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd
+                           http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd">
+<!--    开启组件扫描-->
+    <context:component-scan base-package="com.theoldzheng.*"></context:component-scan>
+
+
+    <!--    配置druid数据库连接池-->
+    <bean id="dataSources" class="com.alibaba.druid.pool.DruidDataSource" destroy-method="close">
+        <property name="driverClassName" value="com.mysql.jdbc.Driver"></property>
+        <property name="url" value="jdbc:mysql://localhost:3306/test?serverTimezone=UTC&amp;
+                  useUnicode=true&amp;characterEncoding=UTF-8&amp;useSSL=false"></property>
+        <property name="username" value="root"></property>
+        <property name="password" value="123456"></property>
+
+    </bean>
+
+    <!--    配置jdbcTemplate对象，并进行dataSources属性注入-->
+    <bean id="jabcTemplate" class="org.springframework.jdbc.core.JdbcTemplate">
+        <!--            进行属性注入-->
+        <property name="dataSource" ref="dataSources"></property>
+    </bean>
+
+<!--  1.创建事务管理器-->
+    <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+<!--        进行属性注入 dataSource -->
+        <property name="dataSource" ref="dataSources"></property>
+    </bean>
+
+<!--  2.配置通知-->
+    <tx:advice id="txAdvice">
+<!--        配置事务参数-->
+<!--        指定在那个方法上面添加事务 以及事务的属性-->
+        <tx:attributes>
+            <tx:method name="updateAccount" isolation="READ_COMMITTED" propagation="REQUIRED"/>
+<!--            <tx:method name="update*" propagation="REQUIRED" isolation="READ_COMMITTED"/>-->
+        </tx:attributes>        
+    </tx:advice>
+<!--    配置切入点和切面-->
+    <aop:config>
+<!--        配置切入点-->
+        <aop:pointcut id="pointcut" expression="execution(* com.theoldzheng.Service.UserService.*(..))"/>
+<!--        配置切面(应用的过程)-->
+        <aop:advisor advice-ref="txAdvice" pointcut-ref="pointcut"/>
+    </aop:config> 
+</beans>
