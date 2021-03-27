@@ -12,7 +12,6 @@ import org.springframework.transaction.annotation.Transactional;
  * @author theoldzheng@163.com  @ZYD
  * @create 2021.3.26 19:12
  */
-@Service
 @Transactional(propagation = Propagation.REQUIRED) //在类头加上事务注解 或者在方法头上加上注解@Transactional 表示对该单个方法的事务注解
 /**
  * 关于其参数的说明
@@ -36,6 +35,7 @@ import org.springframework.transaction.annotation.Transactional;
  * rollbackFor：回滚 设置那些异常出现后进行回滚
  * noRollbackFor：设置那些异常出现不进行回滚
  */
+@Service
 public class UserService {
     @Autowired
     private DAO userDAO;
